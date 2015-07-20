@@ -29,12 +29,16 @@ class App {
     window.addEventListener('popstate', this.handlePopState);
   }
 
+  shouldComponentUpdate(nextProps) {
+    return this.props.path !== nextProps.path;
+  }
+
   componentWillUnmount() {
     window.removeEventListener('popstate', this.handlePopState);
   }
 
-  shouldComponentUpdate(nextProps) {
-    return this.props.path !== nextProps.path;
+  handlePopState(event) {
+    AppActions.navigateTo(window.location.pathname, {replace: !!event.state});
   }
 
   render() {
@@ -62,18 +66,18 @@ class App {
         break;
     }
 
-    return component ? (
-      <div>
-        <Header />
-        {component}
-        <Feedback />
-        <Footer />
-      </div>
-    ) : <NotFoundPage />;
-  }
+    if (component) {
+      return (
+        <div>
+          <Header />
+          {component}
+          <Feedback />
+          <Footer />
+        </div>
+      );
+    }
 
-  handlePopState(event) {
-    AppActions.navigateTo(window.location.pathname, {replace: !!event.state});
+    return <NotFoundPage />;
   }
 
 }
