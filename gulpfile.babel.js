@@ -15,6 +15,10 @@ import mkdirp from 'mkdirp';
 import runSequence from 'run-sequence';
 import webpack from 'webpack';
 import minimist from 'minimist';
+import jest from 'jest-cli';
+import pck from './package.json';
+import harmonize from 'harmonize';
+harmonize();
 
 const $ = gulpLoadPlugins();
 const argv = minimist(process.argv.slice(2));
@@ -25,6 +29,10 @@ let browserSync;
 
 // The default task
 gulp.task('default', ['sync']);
+
+gulp.task('test', cb => {
+  jest.runCLI({ config : pck.jest }, ".", () => { cb(); });
+});
 
 // Clean output directory
 gulp.task('clean', cb => {
@@ -98,7 +106,8 @@ gulp.task('build', ['clean'], cb => {
 // Build and start watching for modifications
 gulp.task('build:watch', cb => {
   watch = true;
-  runSequence('build', () => {
+  runSequence('build', 'test', () => {
+    gulp.watch('src/**/*.js', ['test']);
     gulp.watch(src.assets, ['assets']);
     gulp.watch(src.resources, ['resources']);
     cb();
